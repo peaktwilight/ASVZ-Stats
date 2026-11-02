@@ -2,6 +2,10 @@
   const sanitizeId = (name) =>
     name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
+  const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  })[char]);
+
   function renderCards(data) {
     const grid = document.getElementById('cards-grid');
     grid.innerHTML = '';
@@ -13,7 +17,7 @@
         card.className = 'card';
         card.dataset.sport = sport;
 
-        let html = `<h3>${sport}</h3>`;
+        let html = `<h3>${escapeHtml(sport)}</h3>`;
         const facilities = data[sport].facilities || {};
 
         Object.entries(facilities).forEach(([name, f]) => {
@@ -21,13 +25,13 @@
           html += `
             <div class="facility-row">
               <div class="facility-name">
-                <span>${name}</span>
-                <span>${pct}%</span>
+                <span>${escapeHtml(name)}</span>
+                <span>${escapeHtml(pct)}%</span>
               </div>
               <div class="progress-track">
                 <div class="progress-fill" style="width: ${pct}%"></div>
               </div>
-              <div class="occ-text">${f.places_taken} / ${f.places_max} places</div>
+              <div class="occ-text">${escapeHtml(f.places_taken)} / ${escapeHtml(f.places_max)} places</div>
             </div>`;
         });
 
@@ -56,8 +60,8 @@
       const section = document.createElement('div');
       section.className = 'facility-section';
       section.innerHTML = `
-        <h3>${name}</h3>
-        <div class="occ-badge">${pct}% — ${f.places_taken} / ${f.places_max} places</div>
+        <h3>${escapeHtml(name)}</h3>
+        <div class="occ-badge">${escapeHtml(pct)}% — ${escapeHtml(f.places_taken)} / ${escapeHtml(f.places_max)} places</div>
         <div class="chart-container">
           <canvas id="${canvasId}"></canvas>
         </div>`;
